@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         openDialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showBottomSheetDialog();s
+                showBottomSheetDialog();
             }
         });
 

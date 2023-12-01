@@ -44,5 +44,6 @@ public class MainActivity extends AppCompatActivity {
     private void showBottomSheetDialog() {
         CustomBottomSheetDialogFragment bottomSheetDialogFragment = new CustomBottomSheetDialogFragment();
         bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+        int x = 4;
     }
 }

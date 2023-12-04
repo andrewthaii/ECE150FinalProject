@@ -1,16 +1,25 @@
+# Android Studio
 *.iml
 .gradle
 /local.properties
+
+# Intellij IDEA
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+
+# macOS
 .DS_Store
+
+# Build-related
 /build
 /captures
 .externalNativeBuild
 .cxx
+
+# Project-specific
 local.properties
 /app/

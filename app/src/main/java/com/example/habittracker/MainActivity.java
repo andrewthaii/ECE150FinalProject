@@ -11,12 +11,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import android.widget.AdapterView;
 
-
+import com.example.habittracker.Habit;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 
 public class MainActivity extends AppCompatActivity implements CustomBottomSheetDialogFragment.OnBottomSheetDismissListener{
@@ -24,6 +27,10 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
     private ArrayList<String> habitArray;
     private ArrayAdapter adapter;
     private ListView habitList;
+
+    private ArrayList<Habit> userHabit;
+    private static final String HABIT_PREFS = "HabitPrefs"; // SharedPreferences name
+    private static final String HABIT_LIST_KEY = "habitList"; // Key for habitList in SharedPreferences
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
 
             }
         });
+        //intitalizing userHabit
+        userHabit = new ArrayList<>();
 
         // setting up the array in onCreate
         habitArray = new ArrayList<>();
@@ -59,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Get the selected habit
                 String selectedHabit = habitArray.get(position);
-
+                Habit chosenHabit = findHabitByName(selectedHabit);
+                toolbar.setTitle(chosenHabit.getNumber());
             }
         });
 
@@ -78,25 +88,32 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
 
         habitArray.clear();
 
+        if(userHabit == null || userHabit.isEmpty()){
 
-       // SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-      //  String savedInput1 = sharedPreferences.getString("input1", "");
+            if(loadHabitList() != null){
+                userHabit = loadHabitList();
+            }
+        }
 
-        // Iterate through the set
-
+        //get habitName list and push it back in shared preferences
         SharedPreferences forsets = getSharedPreferences("Preference", Context.MODE_PRIVATE);
         Set<String> habitNames = forsets.getStringSet("habitName", new HashSet<>());
-       // habitNames.add(savedInput1);
-
         SharedPreferences.Editor editor = forsets.edit();
         editor.putStringSet("habitName", habitNames);
         editor.apply();
-
+        //display the list of names again(data was lost when onResume was called)
         for (String element : habitNames) {
             // System.out.println(element);
             habitArray.add(element);
             adapter.notifyDataSetChanged();
         }
+
+
+       //saves userHabit list if its not empty
+        if(!userHabit.isEmpty()){
+        saveHabitList(userHabit);
+        }
+
     }
 
     @Override
@@ -115,33 +132,14 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         editor.putStringSet("habitName", habitNames);
         editor.remove("habitName");
         editor.apply();
-
         editor.putStringSet("habitName", habitNames);
         editor.apply();
 
-        // saving the habit description set
-        Set<String> habitDescriptions = forsets.getStringSet("habitDescription", new HashSet<>());
-        SharedPreferences.Editor editor2 = forsets.edit();
-        editor2.putStringSet("habitDescription", habitDescriptions);
-        editor2.remove("habitDescription");
-        editor2.apply();
-
-        editor2.putStringSet("habitDescription", habitDescriptions);
-        editor2.apply();
 
 
 
-        // saving the habitNumber set
-        Set<String> habitNumber = forsets.getStringSet("habitNumber", new HashSet<>());
-        SharedPreferences.Editor editor3 = forsets.edit();
-        editor3.putStringSet("habitNumber", habitNumber);
-        editor3.remove("habitNumber");
-        editor3.apply();
-
-        editor3.putStringSet("habitNumber", habitNumber);
-        editor3.apply();
-
-
+        saveHabitList(userHabit);
+        saveHabitList(userHabit); //Just added this 2
 
 
     }
@@ -153,13 +151,15 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         toolbar.setTitle("onDismiss");
         habitArray.clear();
 
-
+        //get the user's input
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         String savedInput1 = sharedPreferences.getString("input1", "");
         String savedInput2 = sharedPreferences.getString("input2", "");
         String savedInput3 = sharedPreferences.getString("input3", "");
-        // Iterate through the set
 
+
+
+        //save Haibtnames in a list
         SharedPreferences forsets = getSharedPreferences("Preference", Context.MODE_PRIVATE);
         Set<String> habitNames = forsets.getStringSet("habitName", new HashSet<>());
         habitNames.add(savedInput1);
@@ -167,25 +167,46 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         editor.putStringSet("habitName", habitNames);
         editor.apply();
 
-
-        Set<String> habitDescriptions = forsets.getStringSet("habitDescription", new HashSet<>());
-        habitDescriptions.add(savedInput2);
-        SharedPreferences.Editor editor2 = forsets.edit();
-        editor2.putStringSet("habitDescription", habitDescriptions);
-        editor2.apply();
-
-
-        Set<String> habitNumber = forsets.getStringSet("habitNumber", new HashSet<>());
-        habitNumber.add(savedInput3);
-        SharedPreferences.Editor editor3 = forsets.edit();
-        editor3.putStringSet("habitNumber", habitNumber);
-        editor3.apply();
-
+        //display habit name on List
         for (String element : habitNames) {
             habitArray.add(element);
             adapter.notifyDataSetChanged();
         }
+
+
+        //add all habit information in Habit list's Shared Preferences
+        Habit newHabit = new Habit(savedInput1, savedInput2, savedInput3);
+        userHabit.add(newHabit);
+        saveHabitList(userHabit);
+    }
+    private void saveHabitList(ArrayList<Habit> habits) {
+        SharedPreferences prefs = getSharedPreferences(HABIT_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // Convert habitList to a JSON string and save it
+        String habitsJson = new Gson().toJson(habits);
+        editor.putString(HABIT_LIST_KEY, habitsJson);
+
+        editor.apply();
     }
 
+    private ArrayList<Habit> loadHabitList() {
+        SharedPreferences prefs = getSharedPreferences(HABIT_PREFS, Context.MODE_PRIVATE);
+
+        // Retrieve the JSON string from SharedPreferences
+        String habitsJson = prefs.getString(HABIT_LIST_KEY, "");
+
+        // Convert the JSON string back to ArrayList<Habit>
+        Type type = new TypeToken<ArrayList<Habit>>(){}.getType();
+        return new Gson().fromJson(habitsJson, type);
+    }
+    public Habit findHabitByName(String habitName) {
+        for (Habit habit : userHabit) {
+            if (habit.getName().equals(habitName)) {
+                return habit; // Return the matching Habit object
+            }
+        }
+        return null; // Return null if no match is found
+    }
 
 }

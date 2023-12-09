@@ -2,10 +2,21 @@ package com.example.habittracker;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -13,24 +24,39 @@ import android.widget.ListView;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import android.widget.AdapterView;
 
 import com.example.habittracker.Habit;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import androidx.work.Data;
 
 
-public class MainActivity extends AppCompatActivity implements CustomBottomSheetDialogFragment.OnBottomSheetDismissListener{
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+public class MainActivity extends AppCompatActivity implements CustomBottomSheetDialogFragment.OnBottomSheetDismissListener {
 
     private ArrayList<String> habitArray;
     private ArrayAdapter adapter;
     private ListView habitList;
 
     private ArrayList<Habit> userHabit;
-    private static final String HABIT_PREFS = "HabitPrefs"; // SharedPreferences name
-    private static final String HABIT_LIST_KEY = "habitList"; // Key for habitList in SharedPreferences
+    public static final String HABIT_PREFS = "HabitPrefs"; // SharedPreferences name
+    public static final String HABIT_LIST_KEY = "habitList"; // Key for habitList in SharedPreferences
+
+    public static final String CUSTOM_ALARM_ACTION = "com.example.habittracker.CUSTOM_ALARM";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         // i dont think this does anything I just added it from hw 2
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("onCreate");
+        toolbar.setTitle("GoodHabit");
 
         //setting up the Addhabit button
         Button openDialogButton = findViewById(R.id.habitButton);
@@ -69,10 +95,27 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
                 // Get the selected habit
                 String selectedHabit = habitArray.get(position);
                 Habit chosenHabit = findHabitByName(selectedHabit);
-                toolbar.setTitle(chosenHabit.getNumber());
+               // toolbar.setTitle(chosenHabit.getNumber());
+                Intent intent = new Intent(MainActivity.this, HabitInfo.class);
+                intent.putExtra("Name", chosenHabit.getName());
+                intent.putExtra("Description", chosenHabit.getDescription());
+                intent.putExtra("Number", chosenHabit.getNumber());
+                startActivity(intent);
+
             }
         });
+        //scheduleAlarm();
+        setDailyTask();
 
+      /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "channel_id",
+                    "Channel Name",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }*/
 
     }
     private void showBottomSheetDialog() {
@@ -83,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
     @Override
     protected void onResume() {
         super.onResume();
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("onResume");
+      //  Toolbar toolbar = findViewById(R.id.toolbar);
+      //  toolbar.setTitle("onResume");
 
         habitArray.clear();
 
@@ -119,8 +162,8 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
     @Override
     protected void onPause() {
         super.onPause();
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("onPause");
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+       // toolbar.setTitle("GoodHabits");
         habitArray.clear();
 
 
@@ -147,10 +190,10 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
     public void onDismiss() {
         // Your code to be executed when the bottom sheet is dismissed
         // For example, update something in the main activity
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("onDismiss");
+       // Toolbar toolbar = findViewById(R.id.toolbar);
+      //  toolbar.setTitle("GoodHabit");
         habitArray.clear();
-
+        Log.d("MyAlarmReceiver", "Alarm received!");
         //get the user's input
         SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         String savedInput1 = sharedPreferences.getString("input1", "");
@@ -209,4 +252,30 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         return null; // Return null if no match is found
     }
 
-}
+    private void setDailyTask() {
+
+        OneTimeWorkRequest workRequest =
+                new OneTimeWorkRequest.Builder(MyWorkerClass.class)
+                        .setInitialDelay(getMillisUntil5AM(), TimeUnit.MILLISECONDS)
+                        .build();
+
+        WorkManager.getInstance(this).enqueue(workRequest);
+    }
+
+    private long getMillisUntil5AM() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 14);
+        calendar.set(Calendar.MINUTE, 35);
+        calendar.set(Calendar.SECOND, 1);
+
+        long currentTime = System.currentTimeMillis();
+        long scheduledTime = calendar.getTimeInMillis();
+
+        // If the scheduled time is in the past, schedule for the next day
+        if (currentTime > scheduledTime) {
+            scheduledTime += TimeUnit.DAYS.toMillis(1);
+        }
+
+        return scheduledTime - currentTime;
+    }
+    }

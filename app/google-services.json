@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328748252714",
+    "project_id": "ece150finalproject",
+    "storage_bucket": "ece150finalproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328748252714:android:49cbfc1861bc4684b34d53",
+        "android_client_info": {
+          "package_name": "com.example.habittracker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJzegpg5OuphcDWdrfgNtuTWjeTaUYaPw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

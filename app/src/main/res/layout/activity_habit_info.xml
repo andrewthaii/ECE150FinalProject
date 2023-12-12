@@ -12,11 +12,11 @@
         android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:title="APP NAME"
-        app:titleTextColor="@android:color/white"
+        android:background="@color/black"
+        app:layout_scrollFlags="scroll|enterAlways"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:layout_scrollFlags="scroll|enterAlways"/>
+        app:title="APP NAME"
+        app:titleTextColor="@android:color/white" />
     <TextView
         android:id="@+id/paragraphTextView"
         android:layout_width="wrap_content"

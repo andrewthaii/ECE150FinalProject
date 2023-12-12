@@ -6,6 +6,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -94,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         // i dont think this does anything I just added it from hw 2
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("GoodHabit");
+        toolbar.setTitle("GoodHabits");
 
         //setting up the Addhabit button
         Button openDialogButton = findViewById(R.id.habitButton);
@@ -184,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
        //saves userHabit list if its not empty
         if(!userHabit.isEmpty()){
         saveHabitList(userHabit);
+        saveListToFirebase(userHabit);
         }
 
     }
@@ -212,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
 
         saveHabitList(userHabit);
         saveHabitList(userHabit); //Just added this 2
-
+        saveListToFirebase(userHabit);
 
     }
 
@@ -250,6 +253,8 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
         Habit newHabit = new Habit(savedInput1, savedInput2, savedInput3);
         userHabit.add(newHabit);
         saveHabitList(userHabit);
+        saveListToFirebase(userHabit);
+
     }
     private void saveHabitList(ArrayList<Habit> habits) {
         SharedPreferences prefs = getSharedPreferences(HABIT_PREFS, Context.MODE_PRIVATE);
@@ -261,7 +266,22 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
 
         editor.apply();
     }
+    private void saveListToFirebase(ArrayList<Habit> list) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            // Get the user's unique identifier (UID)
+            String uid = user.getUid();
 
+            // Construct the path using the UID
+            String path = "users/" + uid + "/HabitsList";
+
+            // Get a reference to your database
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(path);
+
+            // Save the list to Firebase
+            databaseReference.setValue(list);
+        }
+    }
     private ArrayList<Habit> loadHabitList() {
         SharedPreferences prefs = getSharedPreferences(HABIT_PREFS, Context.MODE_PRIVATE);
 
@@ -293,8 +313,8 @@ public class MainActivity extends AppCompatActivity implements CustomBottomSheet
 
     private long getMillisUntil5AM() {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 14);
-        calendar.set(Calendar.MINUTE, 35);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 36);
         calendar.set(Calendar.SECOND, 1);
 
         long currentTime = System.currentTimeMillis();

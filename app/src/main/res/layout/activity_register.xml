@@ -10,13 +10,14 @@
     tools:context=".Register">
 
     <TextView
-        android:text="@string/register"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="25dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:gravity="center"
+        android:text="GoodHabits"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:typeface="serif" />
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -41,20 +42,22 @@
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
     <Button
         android:id="@+id/btn_register"
-        android:text="@string/register"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        />
+        android:backgroundTint="#2196F3"
+        android:text="@string/register" />
+
     <TextView
         android:id="@+id/loginNow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
         android:text="@string/click_to_login"
         android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:textStyle="bold|italic" />
 
 </LinearLayout>

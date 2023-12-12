@@ -13,29 +13,34 @@
         android:layout_height="wrap_content"
         android:text="Hello World!"
         />
+
     <Button
         android:id="@+id/logout"
-        android:text="@string/logout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:backgroundTint="#E4E2E2"
+        android:text="@string/logout"
+        android:textColor="@color/black" />
 
     <!-- App Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:title="APP NAME"
-        app:titleTextColor="@android:color/white"
+        android:layout_height="97dp"
+        android:background="#010607"
+        app:layout_scrollFlags="scroll|enterAlways"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:layout_scrollFlags="scroll|enterAlways"/>
+        app:title="APP NAME"
+        app:titleTextColor="@android:color/white" />
 
     <Button
         android:id="@+id/habitButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:backgroundTint="#E4E2E2"
         android:text="Add Habit"
-        android:layout_gravity="right"/>
+        android:textColor="@color/black"/>
 
     <TextView
         android:layout_width="wrap_content"

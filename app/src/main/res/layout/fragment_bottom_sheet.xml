@@ -68,6 +68,8 @@
         android:id="@+id/saveButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save" />
+        android:backgroundTint="#E4E2E2"
+        android:text="Save"
+        android:textColor="@color/black"/>
 
 </LinearLayout>

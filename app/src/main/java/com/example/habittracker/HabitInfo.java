@@ -91,7 +91,7 @@ public class HabitInfo extends AppCompatActivity {
                         if(streak == false){
 
                            // toolbar.setTitle("streak just added");
-                            Toast.makeText(context, "Nice Job! You're Streak Increased!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Nice Job! Your Streak Increased!", Toast.LENGTH_SHORT).show();
                             streak = true;
                             cur_streak++; //and then save it
                           //  textView1.setText(String.valueOf(cur_streak));
